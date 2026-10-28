@@ -18,8 +18,8 @@ const HEADER_LENGTH: usize = 8;
 ///
 /// Call [`Self::flush`] to write the final buffered chunk before dropping the
 /// writer.
-pub struct AlignedSbeWriter {
-    file: File,
+pub struct AlignedSbeWriter<W: Write = File> {
+    file: W,
     buf: Vec<u8>,
     chunk: usize,
 }
@@ -32,8 +32,19 @@ impl AlignedSbeWriter {
             chunk > HEADER_LENGTH,
             "chunk must leave room for SBE data and an SBE header"
         );
+        Self::from_writer(File::create(path)?, chunk)
+    }
+}
+
+impl<W: Write> AlignedSbeWriter<W> {
+    /// Uses the same chunk layout for files and other output streams.
+    pub fn from_writer(file: W, chunk: usize) -> anyhow::Result<Self> {
+        anyhow::ensure!(
+            chunk > HEADER_LENGTH,
+            "chunk must leave room for SBE data and an SBE header"
+        );
         Ok(Self {
-            file: File::create(path)?,
+            file,
             buf: Vec::with_capacity(chunk),
             chunk,
         })
@@ -71,6 +82,7 @@ impl AlignedSbeWriter {
             self.file.write_all(&self.buf)?;
             self.buf.clear();
         }
+        self.file.flush()?;
         Ok(())
     }
 }

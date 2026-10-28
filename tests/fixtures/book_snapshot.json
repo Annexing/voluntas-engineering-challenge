@@ -1,0 +1,1 @@
+[{"event_type":"book","asset_id":"1","market":"condition-a","bids":[{"price":"0.48","size":"30"},{"price":"0.50","size":"15"}],"asks":[{"price":"0.54","size":"10"},{"price":"0.52","size":"25"}],"timestamp":"1757908892351","hash":"snapshot-hash"}]
